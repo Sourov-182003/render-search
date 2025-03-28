@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #searchForm {
+            margin-bottom: 20px;
+        }
+        #searchInput {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #searchButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #results {
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Search Page</h1>
+    <form id="searchForm" action="/search" method="GET">
+        <input type="search" id="searchInput" name="query" placeholder="Enter your search query" required>
+        <button type="submit" id="searchButton">Search</button>
+    </form>
+    <div id="results">
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% elif query %}
+            <h2>Search Results for: {{ query }}</h2>
+            {% if results %}
+                <ul>
+                {% for product in results %}
+                    <li>{{ product.product_name }} (ID: {{ product.product_id }})</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No results found.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

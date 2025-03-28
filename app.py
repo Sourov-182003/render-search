@@ -1,4 +1,6 @@
-from flask import Flask, request, render_template
+# replace the deployed code with the below code and then deploy and send the link
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import joblib
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
@@ -7,8 +9,17 @@ from nltk.stem import PorterStemmer
 import nltk
 import os
 
-# Initialize Flask app
+# Initialize Flask app with CORS support
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+# Configure CORS to allow specific origins in production
+# app.config['CORS_HEADERS'] = 'Content-Type'
+# cors = CORS(app, resources={
+#     r"/search": {
+#         "origins": ["http://localhost:5173", "https://your-production-domain.com"]
+#     }
+# })
 
 # Ensure NLTK data path
 nltk_data_path = os.path.expanduser('~/nltk_data')
@@ -46,17 +57,26 @@ def preprocess_text(text):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return jsonify({
+        'message': 'Welcome to the NLP Search API',
+        'endpoints': {
+            '/search': 'GET - Search products with query parameter'
+        }
+    })
 
 @app.route('/search', methods=['GET'])
 def search():
     """
     Search products based on a query.
+    Returns JSON response with product results.
     """
     query = request.args.get('query', '')
 
     if not query:
-        return render_template('index.html', error='Query parameter is required')
+        return jsonify({
+            'error': 'Query parameter is required',
+            'example': '/search?query=oreo+cookies'
+        }), 400
 
     try:
         # Preprocess the query
@@ -71,14 +91,22 @@ def search():
         # Get top-10 results based on similarity scores
         top_indices = similarity_scores.argsort()[-10:][::-1]
 
-        # Extract product IDs from the top results
+        # Extract product details from the top results
         top_products = products.iloc[top_indices][['product_id', 'product_name']].to_dict(orient='records')
 
-        # Render the results in HTML
-        return render_template('index.html', query=query, results=top_products)
+        # Return JSON response
+        return jsonify({
+            'query': query,
+            'count': len(top_products),
+            'results': top_products
+        })
+
     except Exception as e:
         print(f"Error processing search: {e}")
-        return render_template('index.html', error='An error occurred while processing your search.')
+        return jsonify({
+            'error': 'An error occurred while processing your search',
+            'details': str(e)
+        }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)), debug=True)

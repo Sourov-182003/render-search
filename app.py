@@ -14,7 +14,7 @@ app = Flask(__name__)
 # Configure CORS to allow specific origins
 CORS(app, resources={r"/search": {"origins": ["http://localhost:5173", "https://your-production-domain.com"]}})
 
-# Ensure NLTK data path
+# Ensure NLTK data path  # Should show version 3.0.10 or newer
 nltk_data_path = os.path.expanduser('~/nltk_data')
 if not os.path.exists(nltk_data_path):
     os.makedirs(nltk_data_path)
@@ -106,4 +106,4 @@ def search():
             return render_template('index.html', error='An error occurred while processing your search.')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5001)), debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5173)), debug=True)

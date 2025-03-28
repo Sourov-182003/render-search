@@ -10,7 +10,9 @@ import os
 
 # Initialize Flask app with CORS support
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+
+# Configure CORS to allow specific origins
+CORS(app, resources={r"/search": {"origins": ["http://localhost:5173", "https://your-production-domain.com"]}})
 
 # Ensure NLTK data path
 nltk_data_path = os.path.expanduser('~/nltk_data')

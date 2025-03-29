@@ -3,58 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Page</title>
+    <title>Product Search & Recommendations</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5;
         }
-        #searchForm {
+        .search-section {
+            background: white;
+            padding: 20px;
             margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        #searchInput {
-            width: 70%;
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        input[type="search"], input[type="text"] {
+            flex: 1;
             padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 16px;
         }
-        #searchButton {
+        button {
             padding: 10px 20px;
-            font-size: 16px;
             background-color: #4CAF50;
             color: white;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
         }
-        #results {
-            border-top: 1px solid #ccc;
-            padding-top: 20px;
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .error {
-            color: red;
+            color: #dc3545;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+        .product-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .product-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        .confidence {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .count-badge {
+            background-color: #17a2b8;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
         }
     </style>
 </head>
 <body>
-    <h1>Search Page</h1>
-    <form id="searchForm" action="/search" method="GET">
-        <input type="search" id="searchInput" name="query" placeholder="Enter your search query" required>
-        <button type="submit" id="searchButton">Search</button>
-    </form>
-    <div id="results">
+    <div class="search-section">
+        <h1>Product Search & Recommendations</h1>
+
+        <!-- Search Form -->
+        <form action="/search" method="GET">
+            <div class="form-group">
+                <input type="search"
+                       name="query"
+                       placeholder="Search for products..."
+                       value="{{ query if query }}">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+
+        <!-- Recommendations Form -->
+        <form action="/cart" method="POST">
+            <div class="form-group">
+                <input type="text"
+                       name="product_name"
+                       placeholder="Enter product for recommendations"
+                       value="{{ product_name if product_name }}">
+                <button type="submit">Get Recommendations</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results">
         {% if error %}
-            <p class="error">{{ error }}</p>
-        {% elif query %}
-            <h2>Search Results for: {{ query }}</h2>
-            {% if results %}
-                <ul>
-                {% for product in results %}
-                    <li>{{ product.product_name }} (ID: {{ product.product_id }})</li>
+            <div class="error">{{ error }}</div>
+
+        {% elif recommendations %}
+            <div class="recommendation-header">
+                <h2>Recommendations for "{{ product_name }}"</h2>
+                <span class="count-badge">{{ recommendations|length }} items</span>
+            </div>
+            <ul class="product-list">
+                {% for item in recommendations %}
+                    <li class="product-item">
+                        <span>{{ item.product if item is mapping else item }}</span>
+                        {% if item is mapping and item.confidence %}
+                            <span class="confidence">{{ "%.0f"|format(item.confidence * 100) }}% match</span>
+                        {% endif %}
+                    </li>
                 {% endfor %}
+            </ul>
+
+        {% elif query %}
+            <h2>Results for "{{ query }}"</h2>
+            {% if results %}
+                <ul class="product-list">
+                    {% for product in results %}
+                        <li class="product-item">
+                            {{ product.product_name }} (ID: {{ product.product_id }})
+                        </li>
+                    {% endfor %}
                 </ul>
             {% else %}
-                <p>No results found.</p>
+                <p>No results found</p>
             {% endif %}
         {% endif %}
     </div>

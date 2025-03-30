@@ -13,7 +13,7 @@ import pickle
 app = Flask(__name__)
 
 # Configure CORS to allow specific origins
-CORS(app, resources={r"/search": {"origins": ["http://localhost:5173", "https://your-production-domain.com"]}})
+CORS(app, resources={r"/search": {"origins": ["http://localhost:5173", "https://instamart-ejm2.onrender.com"]}})
 
 # Ensure NLTK data path
 nltk_data_path = os.path.expanduser('~/nltk_data')

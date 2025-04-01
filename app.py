@@ -158,5 +158,40 @@ def cart():
             'details': str(e)
         }), 500
 
+@app.route('/api/products/by-ids', methods=['GET'])
+def get_products_by_ids():
+    """
+    Fetch products by their IDs.
+    """
+    try:
+        # Extract product IDs from query parameters (comma-separated)
+        ids = request.args.get('ids', '').split(',')
+        
+        # Convert string IDs to integers (if applicable)
+        product_ids = [int(id) for id in ids]
+        
+        # Filter products based on IDs (replace with your actual logic)
+        filtered_products = products[products['product_id'].isin(product_ids)]
+        
+        return jsonify({
+            'products': filtered_products.to_dict(orient='records')
+        }), 200
+        
+    except Exception as e:
+        print(f"Error fetching products by IDs: {e}")
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+@app.after_request
+def add_cors_headers(response):
+    """
+    Add CORS headers to all responses.
+    """
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = '*'
+    return response
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)

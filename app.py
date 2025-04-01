@@ -12,7 +12,7 @@ import pickle
 # Initialize Flask app with CORS support
 app = Flask(__name__)
 
-# Enable CORS for all routes and all origins
+# Enable CORS globally for all routes and origins
 CORS(app)
 
 # Ensure NLTK data path
@@ -158,11 +158,19 @@ def cart():
             'details': str(e)
         }), 500
 
-@app.route('/api/products/by-ids', methods=['GET'])
+@app.route('/api/products/by-ids', methods=['GET', 'OPTIONS'])
 def get_products_by_ids():
     """
     Fetch products by their IDs.
     """
+    if request.method == 'OPTIONS':
+        # Handle preflight request (CORS)
+        response = jsonify()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Headers'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = '*'
+        return response, 200
+
     try:
         # Extract product IDs from query parameters (comma-separated)
         ids = request.args.get('ids', '').split(',')
@@ -194,4 +202,4 @@ def add_cors_headers(response):
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 6000)), debug=True)

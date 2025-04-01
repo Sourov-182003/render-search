@@ -12,8 +12,8 @@ import pickle
 # Initialize Flask app with CORS support
 app = Flask(__name__)
 
-# Configure CORS to allow specific origins
-CORS(app, resources={r"/search": {"origins": ["http://localhost:5173", "https://instamart-ejm2.onrender.com","https://instacart-backend.onrender.com"]}})
+# Enable CORS for all routes and all origins
+CORS(app)
 
 # Ensure NLTK data path
 nltk_data_path = os.path.expanduser('~/nltk_data')
@@ -159,4 +159,4 @@ def cart():
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5173)), debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)

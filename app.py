@@ -13,7 +13,13 @@ import pickle
 app = Flask(__name__)
 
 # Enable CORS globally for all routes and origins
-CORS(app)
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+        "allow_headers": ["*"]
+    }
+})
 
 # Ensure NLTK data path
 nltk_data_path = os.path.expanduser('~/nltk_data')
@@ -202,4 +208,4 @@ def add_cors_headers(response):
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 6000)), debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
